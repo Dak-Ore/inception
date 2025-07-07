@@ -1,0 +1,72 @@
+services:
+  mariadb:
+      container_name: mariadb
+      env_file:
+          - .env
+      build:
+          context: ./requirements/mariadb
+          args:
+              DEBIAN_VERSION: ${DEBIAN_VERSION}
+      healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "--silent"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+      volumes:
+          - ${HOME}/data/mariadb:/var/lib/mysql
+      networks:
+          - inception
+      expose:
+          - 3306
+      restart: unless-stopped
+  wordpress:
+    container_name: wordpress
+    env_file:
+        - .env
+    build:
+        context: ./requirements/wordpress
+    depends_on:
+        mariadb:
+            condition: service_healthy
+    volumes:
+        - ${HOME}/data/wordpress_db:/home
+        - ${HOME}/data/wordpress:/home
+    networks:
+        - inception
+    expose:
+        - 9000
+    restart: unless-stopped
+  nginx:
+      container_name: nginx
+      env_file:
+          - .env
+      build:
+          context: ./requirements/nginx
+          args:
+            DEBIAN_VERSION: ${DEBIAN_VERSION}
+            PATH_NGINX_CERTIFICATE: ${PATH_NGINX_CERTIFICATE}
+            PATH_NGINX_TSL_KEY: ${PATH_NGINX_TSL_KEY}
+      networks:
+          - inception
+      ports:
+          - 80:80
+          - 443:443
+      restart: unless-stopped
+  ### BONUS (TODO) ###
+
+networks:
+    inception:
+        driver: bridge
+
+########## DOCKER SECRETS ##########
+secrets:
+  db_admin_pass:
+    file: db_admin_pass.txt
+  db_user_pass:
+    file: db_user_pass.txt
+  ftp_password:
+    file: ftp_password.txt
+  wp_admin_pass:
+    file: wp_admin_pass.txt
+  wp_user_pass:
+    file: wp_user_pass.txt
