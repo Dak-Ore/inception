@@ -1,51 +1,61 @@
+include srcs/.env
+
 COMPOSE_FILE = srcs/docker-compose.yml
 COMPOSE = docker compose -f $(COMPOSE_FILE)
-LOGIN = rsebasti
+DB_VOLUME = /home/$(USER)/data/wordpress_db
+WP_VOLUME = /home/$(USER)/data/wordpress
+VOLUMES = $(DB_VOLUME) $(WP_VOLUME)
 
-all: create_volume  hostsed_add
-	@$(COMPOSE) up --build -d
+all: hostsed_add build
 
 create_volume:
-	@mkdir -p /home/$(USER)/data/mariadb
-	@mkdir -p /home/$(USER)/data/wordpress_db
-	@mkdir -p /home/$(USER)/data/wordpress
-
-check_hostsed:
-	@dpkg -s hostsed >/dev/null 2>&1 || sudo apt update && sudo apt install -y hostsed
-
-hostsed_add: check_hostsed
-	@echo Added Host
-	@sudo hostsed add 127.0.0.1 $(LOGIN).42.fr > /dev/null
-
-hostsed_rm: check_hostsed
-	@sudo hostsed rm 127.0.0.1 $(LOGIN).42.fr > /dev/null
-
-up: create_volume hostsed_add
-	@$(COMPOSE) up --detach
-
-down:
-	@$(COMPOSE) down
-
-du: down up
-
-stop:
-	@$(COMPOSE) stop
-
-start:
-	@$(COMPOSE) start
-
-restart: stop start
-
-re: clean all
-
-prod: down delete_volume up
-
-clean: down delete_volume
-	@docker system prune --all --force
+	@echo "Creating local volumes..."
+	@mkdir -p $(VOLUMES)
 
 delete_volume:
-	@sudo rm -rf /home/$(USER)/data/mariadb
-	@sudo rm -rf /home/$(USER)/data/wordpress
-	@sudo rm -rf /home/$(USER)/data/static_website_volume
+	@echo "Deleting local volumes..."
+	@rm -rf $(VOLUMES)
 
-.PHONY : all up down du re prod clean stop start restart create_volume delete_volume
+check_hostsed:
+	@dpkg -s hostsed >/dev/null 2>&1 || (echo "hostsed not found, installing..." && sudo apt update && sudo apt install -y hostsed)
+
+hostsed_add: check_hostsed
+	@sudo hostsed add 127.0.0.1 $(DOMAIN) > /dev/null
+	@echo "$(DOMAIN) added to hosts."
+
+hostsed_rm: check_hostsed
+	@sudo hostsed rm 127.0.0.1 $(DOMAIN) > /dev/null
+	@echo "$(DOMAIN) removed from hosts."
+
+build: create_volume
+	@$(COMPOSE) up --build -d
+
+up:
+	@echo "Starting services..."
+	@$(COMPOSE) up -d
+
+down:
+	@echo "Stopping services..."
+	@$(COMPOSE) down
+
+stop:
+	@echo "Stopping containers..."
+	@$(COMPOSE) stop
+	@echo "Containers stopped."
+
+start:
+	@echo "Starting containers..."
+	@$(COMPOSE) start
+	@echo "Containers started."
+
+restart: stop start
+	@echo "Containers restarted."
+
+clean: down delete_volume
+	@echo "Cleaning up..."
+	@docker rmi -f nginx:inception mariadb:inception wordpress:inception
+
+re: clean build
+	@echo "Complete rebuild finished."
+
+.PHONY : all hostsed_add hostsed_rm up down du re clean stop start restart create_volume delete_volume

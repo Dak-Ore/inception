@@ -1,10 +1,17 @@
 #!/bin/bash
 
-service mysql start;
-mysql -e "CREATE DATABASE IF NOT EXISTS \`${MARIADB_NAME}\`;"
-mysql -e "CREATE USER IF NOT EXISTS \`${MARIADB_USER_LOGIN}\`@'localhost' IDENTIFIED BY '${MARIADB_USER_PASSWORD}';"
-mysql -e "GRANT ALL PRIVILEGES ON \`${MARIADB_NAME}\`.* TO \`${MARIADB_USER_LOGIN}\`@'%' IDENTIFIED BY '${MARIADB_USER_PASSWORD}';"
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MARIADB_ROOT_PASSWORD}';"
-mysql -e "FLUSH PRIVILEGES;"
-mysqladmin -u root -p$MARIADB_ROOT_PASSWORD shutdown
+mysqld_safe &
+sleep 5
+
+mariadb -e "CREATE DATABASE IF NOT EXISTS \`${MDB_NAME}\`;"
+mariadb -e "CREATE USER IF NOT EXISTS \`${MDB_USER}\`@'localhost' IDENTIFIED BY '${MDB_USER_PASS}';"
+mariadb -e "GRANT ALL PRIVILEGES ON \`${MDB_ROOT_PASS}\`.* TO \`${MDB_USER}\`@'%' IDENTIFIED BY '${MDB_USER_PASS}';"
+mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${MDB_ROOT_PASS}';"
+mariadb -e "FLUSH PRIVILEGES;"
+
+mariadb-admin -u root -p"$MDB_ROOT_PASS" shutdown
+
+killall mysqld_safe
+wait
+
 exec mysqld_safe

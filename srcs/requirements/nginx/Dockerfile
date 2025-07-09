@@ -1,23 +1,28 @@
 ARG DEBIAN_VERSION
 FROM debian:${DEBIAN_VERSION:-bullseye-slim}
 
-RUN		apt-get update -y && \
-		apt-get install -y nginx openssl curl && \
-		apt-get clean && \
+RUN		apt update -y && \
+		apt install -y nginx openssl curl gettext-base && \
+		apt clean && \
 		rm -rf /var/lib/apt/lists/*
 
-		
-# CREATE DIRECTORY FOR OPENSSL CERTIFICATE
-ARG PATH_NGINX_CERTIFICATE
-RUN mkdir -p ${PATH_NGINX_CERTIFICATE}
-RUN openssl req -x509 -nodes -out ${PATH_NGINX_CERTIFICATE}/inception.crt -keyout ${PATH_NGINX_CERTIFICATE}/inception.key -subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=rsebasti.42.fr/UID=rsebasti"
+ARG LOGIN
+ARG DOMAIN_NAME
 
-# CREATE DIRECTORY FOR NGINX CONF
-ARG PATH_NGINX_CONF
-RUN mkdir -p ${PATH_NGINX_CONF}
+ENV SSL_CRT=/etc/nginx/ssl/inception.crt
+ENV SSL_KEY=/etc/nginx/ssl/inception.key
+
+# CREATE DIRECTORY FOR OPENSSL CERTIFICATE
+RUN mkdir -p /etc/nginx/ssl /www
+
+RUN openssl req -x509 -nodes -days 365 \
+	-out ${SSL_CRT} \
+	-keyout ${SSL_KEY} \
+	-subj "/C=FR/ST=IDF/L=Perpignan/O=42/OU=42/CN=${DOMAIN_NAME}/UID=${LOGIN}"
+
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 RUN chmod 755 /var/www/html
-RUN chown -R www-data:www-data /var/www/html
+# RUN chown -R www-data:www-data /var/www/html
 		
 EXPOSE 443
 

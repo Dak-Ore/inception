@@ -44,8 +44,6 @@ services:
           context: ./requirements/nginx
           args:
             DEBIAN_VERSION: ${DEBIAN_VERSION}
-            PATH_NGINX_CERTIFICATE: ${PATH_NGINX_CERTIFICATE}
-            PATH_NGINX_TSL_KEY: ${PATH_NGINX_TSL_KEY}
       networks:
           - inception
       ports:
