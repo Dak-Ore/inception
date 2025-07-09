@@ -13,7 +13,7 @@ services:
           timeout: 5s
           retries: 5
       volumes:
-          - wordpress_db/var/lib/mysql
+          - wordpress_db:/var/lib/mysql
       networks:
           - inception
       expose:
