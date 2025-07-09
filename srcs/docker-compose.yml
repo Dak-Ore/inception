@@ -12,8 +12,8 @@ services:
           interval: 10s
           timeout: 5s
           retries: 5
-      # volumes:
-      #     - ${HOME}/data/mariadb:/var/lib/mysql
+      volumes:
+          - wordpress_db/var/lib/mysql
       networks:
           - inception
       expose:
@@ -29,8 +29,7 @@ services:
         mariadb:
             condition: service_healthy
     volumes:
-        - ${HOME}/data/wordpress_db:/home
-        - ${HOME}/data/wordpress:/home
+        - wordpress_data:/var/www/html
     networks:
         - inception
     expose:
@@ -55,6 +54,21 @@ services:
 networks:
     inception:
         driver: bridge
+
+volumes:
+    wordpress_db:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${HOME}/data/wordpress_db
+
+    wordpress_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${HOME}/data/wordpress
 
 ########## DOCKER SECRETS ##########
 secrets:
