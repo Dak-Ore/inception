@@ -15,9 +15,12 @@ RUN mkdir -p /var/lib/mysql && chown mysql:mysql /var/lib/mysql && chmod 750 /va
 
 EXPOSE 3306
 
-# HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
-# 	CMD mysqladmin ping --silent || exit 1
+HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
+	CMD mysqladmin ping --silent || exit 1
 
 COPY conf/init.sh /init.sh
 RUN chmod +x /init.sh
+
+RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
+
 ENTRYPOINT [ "/init.sh" ]
