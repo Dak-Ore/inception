@@ -12,7 +12,7 @@ RUN	chown -R root:root /var/www/wordpress
 
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/w
+RUN mv wp-cli.phar /usr/local/bin/wp
 
 COPY conf/init.sh /
 RUN chmod +x init.sh
