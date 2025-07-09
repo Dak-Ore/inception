@@ -6,6 +6,8 @@ RUN		apt-get update -y && \
 		apt-get clean && \
 		rm -rf /var/lib/apt/lists/*
 
+RUN mkdir -p /www/html
+
 RUN wget https://fr.wordpress.org/wordpress-6.8.1-fr_FR.tar.gz -P /var/www
 RUN cd /var/www && tar -xzf wordpress-6.8.1-fr_FR.tar.gz && rm wordpress-6.8.1-fr_FR.tar.gz
 RUN	chown -R root:root /var/www/wordpress
