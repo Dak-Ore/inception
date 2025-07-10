@@ -20,6 +20,8 @@ EXPOSE 3306
 HEALTHCHECK --interval=3s --timeout=3s --retries=3 \
 CMD mysqladmin ping --silent || exit 1
 
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
+
 COPY conf/init.sh /init.sh
 RUN chmod +x /init.sh  
 RUN apt remove -y ${TMP_PKG} && apt clean && rm -rf /var/lib/apt/lists/*

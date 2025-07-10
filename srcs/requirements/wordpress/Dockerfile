@@ -18,4 +18,7 @@ RUN mv wp-cli.phar /usr/local/bin/wp
 RUN mkdir -p /run/php && sed -i 's|^listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf	
 EXPOSE 9000
 
-ENTRYPOINT [ "php-fpm7.4", "-F" ]
+COPY conf/init.sh /init.sh
+RUN chmod +x /init.sh
+
+ENTRYPOINT [ "/init.sh" ]
