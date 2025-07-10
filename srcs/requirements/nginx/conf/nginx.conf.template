@@ -1,0 +1,28 @@
+events {}
+
+http {
+    access_log /proc/self/fd/1;
+    error_log  /proc/self/fd/2;
+
+    server {
+        listen 443 ssl;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_certificate ${SSL_CERT};
+        ssl_certificate_key ${SSL_KEY};
+
+        root /www;
+        server_name ${DOMAIN_NAME} localhost;
+        index index.php index.html;
+
+        location / {
+            try_files $uri $uri/ /index.php?$args;
+        }
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_pass wordpress:9000;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        }
+    }
+}

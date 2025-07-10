@@ -1,24 +1,21 @@
 ARG DEBIAN_VERSION
 FROM debian:${DEBIAN_VERSION:-bullseye-slim}
 
-RUN		apt-get update -y && \
-		apt-get install -y wget unzip less netcat curl sudo php7.4 php7.4-fpm php7.4-mysql php7.4-gd php7.4-xml php7.4-curl php7.4-mbstring php7.4-zip mariadb-client && \
-		apt-get clean && \
+RUN		apt update -y && \
+		apt install -y curl wget unzip sudo php7.4 php7.4-fpm php7.4-mysql mariadb-client && \
+		apt clean && \
 		rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www
-
-RUN wget https://fr.wordpress.org/wordpress-6.8.1-fr_FR.tar.gz -P /var/www
-RUN cd /var/www && tar -xzf wordpress-6.8.1-fr_FR.tar.gz && rm wordpress-6.8.1-fr_FR.tar.gz
-RUN	chown -R root:root /var/www/wordpress
+RUN curl -O https://wordpress.org/wordpress-6.8.1.tar.gz && \
+    tar -xzf wordpress-6.8.1.tar.gz && \
+    rm wordpress-6.8.1.tar.gz
 
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
 RUN chmod +x wp-cli.phar
 RUN mv wp-cli.phar /usr/local/bin/wp
 
-COPY conf/init.sh /
-RUN chmod +x init.sh
-
+RUN mkdir -p /run/php && sed -i 's|^listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf	
 EXPOSE 9000
 
-ENTRYPOINT ["bash", "init.sh"]
+ENTRYPOINT [ "php-fpm7.4", "-F" ]
