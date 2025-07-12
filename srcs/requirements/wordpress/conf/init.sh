@@ -1,19 +1,5 @@
 #!/bin/bash
 
-cd /var/www/wordpress
-
-echo "Testing database connection..."
-echo "    - User: $MDB_USER"
-echo "    - Database: mariadb"
-echo "    - Host: $MDB_NAME"
-
-echo "Database connection successful!"
-
-until mysqladmin -h"mariadb" -u"$MDB_USER" -p"$MDB_USER_PASS" ping &>/dev/null; do
-    echo "Waiting for MariaDB... (Trying to connect as $MDB_USER)"
-    sleep 5
-done
-
 if [ ! -f wp-config.php ]; then
 	echo "Creating wp-config.php..."
 
@@ -34,12 +20,14 @@ if [ ! -f wp-config.php ]; then
 		--skip-email \
 		--allow-root
 
+	echo "Creating wp user..."
+
 	wp user create "$WP_USER_LOGIN" "$WP_USER_EMAIL" \
 		--role=author \
 		--user_pass="$WP_USER_PASSWORD" \
 		--allow-root
 
-	echo "WordPress successfully installed."
+	echo "WordPress installtion ended."
 else
 	echo "WordPress is already configured."
 fi

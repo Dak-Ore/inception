@@ -1,24 +1,41 @@
 ARG DEBIAN_VERSION
 FROM debian:${DEBIAN_VERSION:-bullseye-slim}
 
-RUN		apt update -y && \
-		apt install -y curl wget unzip sudo php7.4 php7.4-fpm php7.4-mysql mariadb-client && \
-		apt clean && \
-		rm -rf /var/lib/apt/lists/*
+RUN apt update -y && \
+	apt upgrade -y && \
+	apt install -y \
+	wget \
+	curl \
+	php7.4 \
+	php7.4-fpm \
+	php7.4-mysql \
+	mariadb-client \
+	unzip \
+	less \
+	netcat && \
+	rm -rf /var/lib/apt/lists/*
 
-WORKDIR /var/www
-RUN curl -O https://wordpress.org/wordpress-6.8.1.tar.gz && \
-    tar -xzf wordpress-6.8.1.tar.gz && \
-    rm wordpress-6.8.1.tar.gz
+RUN mkdir -p /run/php
 
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/wp
+COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
 
-RUN mkdir -p /run/php && sed -i 's|^listen = .*|listen = 9000|' /etc/php/7.4/fpm/pool.d/www.conf	
+RUN wget https://fr.wordpress.org/wordpress-6.8.1-fr_FR.tar.gz -P /var/www && \
+	tar -xzf /var/www/wordpress-6.8.1-fr_FR.tar.gz -C /var/www && \
+	rm /var/www/wordpress-6.8.1-fr_FR.tar.gz && \
+	chown -R www-data:www-data /var/www/wordpress
+
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
+
 EXPOSE 9000
 
 COPY conf/init.sh /init.sh
 RUN chmod +x /init.sh
+
+WORKDIR /var/www/wordpress
+
+HEALTHCHECK --interval=3s --timeout=3s --retries=3 \
+CMD mysqladmin -h"mariadb" -u"$MDB_USER" -p"$MDB_USER_PASS" ping &>/dev/null;
 
 ENTRYPOINT [ "/init.sh" ]

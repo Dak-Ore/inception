@@ -10,6 +10,8 @@ services:
             - wordpress
         networks:
             - inception
+        volumes:
+        - wordpress_data:/var/www/wordpress
         ports:
             - 80:80
             - 443:443
@@ -48,7 +50,7 @@ services:
             mariadb:
                 condition: service_healthy
         volumes:
-            - wordpress_data:/var/www/html
+            - wordpress_data:/var/www/wordpress
         networks:
             - inception
         expose:
