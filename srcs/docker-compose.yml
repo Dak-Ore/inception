@@ -11,7 +11,8 @@ services:
         networks:
             - inception
         volumes:
-        - wordpress_data:/var/www/wordpress
+            - wordpress_data:/var/www/wordpress
+            - static_data:/var/www/static
         ports:
             - 80:80
             - 443:443
@@ -56,6 +57,33 @@ services:
         expose:
             - 9000
         restart: unless-stopped
+    
+    # BONUS PART
+    static:
+        container_name: static
+        env_file:
+            - .env
+        build:
+            context: ./requirements/bonus/static
+        image: static:inception
+        volumes:
+            - static_data:/var/www/static
+        networks:
+            - inception
+        expose:
+            - 3000
+    redis:
+        container_name: redis
+        image: redis:inception
+        env_file:
+            - .env
+        build: 
+            context: ./requirements/bonus/redis
+        restart: unless-stopped
+        networks:
+            - inception
+        expose:
+            - 6379
 
 networks:
     inception:
@@ -75,3 +103,9 @@ volumes:
             type: none
             o: bind
             device: ${HOME}/data/wordpress
+    static_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${HOME}/data/static

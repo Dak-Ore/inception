@@ -12,6 +12,8 @@ RUN apt update -y && \
 	mariadb-client \
 	unzip \
 	less \
+	redis \
+	php-redis \
 	netcat && \
 	rm -rf /var/lib/apt/lists/*
 
