@@ -13,6 +13,7 @@ services:
         volumes:
             - wordpress_data:/var/www/wordpress
             - static_data:/var/www/static
+            - adminer_data:/var/www/adminer
         ports:
             - 80:80
             - 443:443
@@ -84,6 +85,20 @@ services:
             - inception
         expose:
             - 6379
+    adminer:
+        container_name: adminer
+        image: adminer:inception
+        env_file:
+            - .env
+        build: 
+            context: ./requirements/bonus/adminer
+        restart: unless-stopped
+        networks:
+            - inception
+        volumes:
+            - adminer_data:/var/www/adminer
+        expose:
+            - 9000
 
 networks:
     inception:
@@ -109,3 +124,9 @@ volumes:
             type: none
             o: bind
             device: ${HOME}/data/static
+    adminer_data:
+        driver: local
+        driver_opts:
+            type: none
+            o: bind
+            device: ${HOME}/data/adminer
