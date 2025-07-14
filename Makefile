@@ -55,7 +55,7 @@ restart: stop start
 
 clean: down delete_volume
 	@echo "Cleaning up..."
-	@docker rmi -f nginx:inception mariadb:inception wordpress:inception static:inception redis:inception adminer:inception
+	@docker rmi -f nginx:inception mariadb:inception wordpress:inception static:inception redis:inception adminer:inception ftp:inception
 
 re: clean build
 	@echo "Complete rebuild finished."

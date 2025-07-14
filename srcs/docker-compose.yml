@@ -99,7 +99,21 @@ services:
             - adminer_data:/var/www/adminer
         expose:
             - 9000
-
+    ftp:
+        container_name: ftp
+        env_file:
+            - .env
+        build:
+            context: ./requirements/bonus/ftp
+        image: ftp:inception
+        volumes:
+            - wordpress_data:/var/www/wordpress
+        networks:
+            - inception
+        ports:
+            - "21:21"
+            - "20:20"
+            - "21100-21110:21100-21110"
 networks:
     inception:
         driver: bridge
