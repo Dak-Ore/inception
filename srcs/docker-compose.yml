@@ -114,6 +114,21 @@ services:
             - "21:21"
             - "20:20"
             - "21100-21110:21100-21110"
+
+    lazydocker:
+        container_name: lazydocker
+        build: ./requirements/bonus/lazydocker
+        image: lazydocker:inception
+        restart: unless-stopped
+        networks:
+            - inception
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /:/mnt/host:ro
+        stdin_open: true
+        tty: true
+
+
 networks:
     inception:
         driver: bridge
