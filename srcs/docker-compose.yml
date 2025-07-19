@@ -12,7 +12,6 @@ services:
             - inception
         volumes:
             - wordpress_data:/var/www/wordpress
-            - static_data:/var/www/static
             - adminer_data:/var/www/adminer
         ports:
             - 80:80
@@ -67,12 +66,12 @@ services:
         build:
             context: ./requirements/bonus/static
         image: static:inception
-        volumes:
-            - static_data:/var/www/static
         networks:
             - inception
         expose:
             - 3000
+        ports:
+         - 3000:3000 
     redis:
         container_name: redis
         image: redis:inception
@@ -114,19 +113,21 @@ services:
             - "21:21"
             - "20:20"
             - "21100-21110:21100-21110"
-
-    lazydocker:
-        container_name: lazydocker
-        build: ./requirements/bonus/lazydocker
-        image: lazydocker:inception
-        restart: unless-stopped
+    ngrok:
+        container_name: ngrok
+        build:
+            context: ./requirements/bonus/ngrok
+        env_file:
+         - .env
+        image: ngrok:inception
+        environment:
+            - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+            - NGROK_PORT=3000 
         networks:
             - inception
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /:/mnt/host:ro
-        stdin_open: true
-        tty: true
+        depends_on:
+            - static
+        restart: unless-stopped
 
 
 networks:
@@ -147,12 +148,6 @@ volumes:
             type: none
             o: bind
             device: ${HOME}/data/wordpress
-    static_data:
-        driver: local
-        driver_opts:
-            type: none
-            o: bind
-            device: ${HOME}/data/static
     adminer_data:
         driver: local
         driver_opts:

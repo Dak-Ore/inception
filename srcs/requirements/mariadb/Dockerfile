@@ -17,7 +17,7 @@ RUN mkdir -p /var/lib/mysql
 
 EXPOSE 3306
 
-HEALTHCHECK --interval=3s --timeout=3s --retries=3 \
+HEALTHCHECK --interval=3s --timeout=3s --retries=5 \
 CMD mysqladmin ping --silent || exit 1
 
 COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf

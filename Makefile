@@ -4,9 +4,8 @@ COMPOSE_FILE = srcs/docker-compose.yml
 COMPOSE = docker compose -f $(COMPOSE_FILE)
 DB_VOLUME = /home/$(USER)/data/wordpress_db
 WP_VOLUME = /home/$(USER)/data/wordpress
-STATIC_VOLUME = /home/$(USER)/data/static
 ADMINER_VOLUME = /home/$(USER)/data/adminer
-VOLUMES = $(DB_VOLUME) $(WP_VOLUME) $(STATIC_VOLUME) $(ADMINER_VOLUME)
+VOLUMES = $(DB_VOLUME) $(WP_VOLUME) $(ADMINER_VOLUME)
 
 all: hostsed_add build
 
@@ -55,7 +54,7 @@ restart: stop start
 
 clean: down delete_volume
 	@echo "Cleaning up..."
-	@docker rmi -f nginx:inception mariadb:inception wordpress:inception static:inception redis:inception adminer:inception ftp:inception lazydocker:inception
+	@docker rmi -f nginx:inception mariadb:inception wordpress:inception static:inception redis:inception adminer:inception ftp:inception ngrok:inception
 
 re: clean build
 	@echo "Complete rebuild finished."
